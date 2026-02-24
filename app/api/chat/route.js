@@ -1,4 +1,4 @@
-import { supabase } from '../../../lib/supabase'
+import sql from '../../../lib/db'
 import { checkCrisis } from '../../../lib/crisis'
 import { agents } from '../../../lib/agents'
 
@@ -6,22 +6,20 @@ export async function POST(req) {
   const { message, userId, agentId = 'ansiedade' } = await req.json()
 
   if (checkCrisis(message)) {
-    await supabase.from('audit_events').insert({
-      user_id: userId,
-      event_type: 'crisis_detected',
-      metadata: { message }
-    })
+    await sql`
+      INSERT INTO audit_events (user_id, event_type, metadata)
+      VALUES (${userId}, 'crisis_detected', ${JSON.stringify({ message })})
+    `;
 
     return Response.json({
       reply: "Se você estiver em risco imediato, ligue 188 (CVV - Brasil). Procure ajuda profissional imediatamente."
     })
   }
 
-  const { data: user } = await supabase
-    .from('users')
-    .select('credits')
-    .eq('id', userId)
-    .single()
+  const users = await sql`
+    SELECT credits FROM users WHERE id = ${userId}
+  `;
+  const user = users[0];
 
   if (!user || user.credits <= 0) {
     return Response.json({ error: "Créditos insuficientes." })
@@ -29,13 +27,11 @@ export async function POST(req) {
 
   const agent = agents[agentId] || agents['ansiedade']
 
-  const { data: history } = await supabase
-    .from('messages')
-    .select('role, content')
-    .eq('user_id', userId)
-    .eq('agent_id', agentId)
-    .order('created_at', { ascending: false })
-    .limit(20)
+  const history = await sql`
+    SELECT role, content FROM messages
+    WHERE user_id = ${userId} AND agent_id = ${agentId}
+    ORDER BY created_at DESC LIMIT 20
+  `;
   
   const formattedHistory = (history || []).reverse().map(msg => ({
     role: msg.role,
@@ -72,26 +68,19 @@ export async function POST(req) {
   const replyContent = orchestratorData.reply || orchestratorData.choices?.[0]?.message?.content || "Desculpe, ocorreu um erro de comunicação.";
   const tokensUsed = orchestratorData.usage?.total_tokens || 0;
 
-  await supabase
-    .from('users')
-    .update({ credits: user.credits - 1 })
-    .eq('id', userId)
+  await sql`
+    UPDATE users SET credits = credits - 1 WHERE id = ${userId}
+  `;
 
-  await supabase.from('messages').insert([
-    {
-      user_id: userId,
-      agent_id: agentId,
-      role: "user",
-      content: message
-    },
-    {
-      user_id: userId,
-      agent_id: agentId,
-      role: "assistant",
-      content: replyContent,
-      tokens_used: tokensUsed
-    }
-  ])
+  await sql`
+    INSERT INTO messages (user_id, agent_id, role, content)
+    VALUES (${userId}, ${agentId}, 'user', ${message})
+  `;
+
+  await sql`
+    INSERT INTO messages (user_id, agent_id, role, content, tokens_used)
+    VALUES (${userId}, ${agentId}, 'assistant', ${replyContent}, ${tokensUsed})
+  `;
 
   return Response.json({
     reply: replyContent
