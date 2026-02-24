@@ -1,11 +1,6 @@
-import OpenAI from 'openai'
 import { supabase } from '../../../lib/supabase'
 import { checkCrisis } from '../../../lib/crisis'
 import { agents } from '../../../lib/agents'
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
 
 export async function POST(req) {
   const { message, userId, agentId = 'ansiedade' } = await req.json()
@@ -47,14 +42,35 @@ export async function POST(req) {
     content: msg.content
   }))
 
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "system", content: agent.systemPrompt },
-      ...formattedHistory,
-      { role: "user", content: message }
-    ]
-  })
+  const messages = [
+    { role: "system", content: agent.systemPrompt },
+    ...formattedHistory,
+    { role: "user", content: message }
+  ];
+
+  // Chamada ao Orquestrador
+  const orchestratorResponse = await fetch(`${process.env.ORCHESTRATOR_URL}/v1/process`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.ORCHESTRATOR_API_KEY}`
+    },
+    body: JSON.stringify({
+      messages: messages,
+      model: "gpt-4o-mini",
+      temperature: 0.7,
+      domain: "assistente-emocional"
+    })
+  });
+
+  if (!orchestratorResponse.ok) {
+    console.error("Erro no orquestrador:", await orchestratorResponse.text());
+    return Response.json({ error: "Erro ao processar mensagem com o Orquestrador." }, { status: 500 });
+  }
+
+  const orchestratorData = await orchestratorResponse.json();
+  const replyContent = orchestratorData.reply || orchestratorData.choices?.[0]?.message?.content || "Desculpe, ocorreu um erro de comunicação.";
+  const tokensUsed = orchestratorData.usage?.total_tokens || 0;
 
   await supabase
     .from('users')
@@ -72,12 +88,12 @@ export async function POST(req) {
       user_id: userId,
       agent_id: agentId,
       role: "assistant",
-      content: completion.choices[0].message.content,
-      tokens_used: completion.usage.total_tokens
+      content: replyContent,
+      tokens_used: tokensUsed
     }
   ])
 
   return Response.json({
-    reply: completion.choices[0].message.content
+    reply: replyContent
   })
 }
