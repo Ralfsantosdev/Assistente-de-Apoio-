@@ -55,6 +55,9 @@ export default function Chat() {
       if (data.reply) {
         setChatHistory(prev => [...prev, { role: 'assistant', content: data.reply }])
         setCredits(prev => prev - 1)
+      } else if (data.outOfCredits) {
+        setChatHistory(prev => [...prev, { role: 'assistant', content: data.error, outOfCredits: true }])
+        setCredits(0)
       } else {
         setChatHistory(prev => [...prev, { role: 'assistant', content: `⚠️ ${data.error || 'Erro desconhecido'}` }])
       }
@@ -181,10 +184,21 @@ export default function Chat() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--bg-input)', padding: '6px 12px', borderRadius: 20, border: '1px solid var(--border-light)' }}>
             <span style={{ fontSize: 16 }}>✨</span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: credits === 0 ? '#ef4444' : 'var(--text-main)' }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: credits <= 5 ? '#ef4444' : 'var(--text-main)' }}>
               {credits !== null ? credits : '...'}
             </span>
+            {credits !== null && credits > 0 && credits <= 5 && (
+              <span style={{ fontSize: 10, color: '#ef4444', marginLeft: 4, fontWeight: 700 }}>ACABANDO</span>
+            )}
           </div>
+          {credits !== null && credits <= 5 && (
+            <button 
+              onClick={() => buyCredits('pro')} 
+              style={{ background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 20, padding: '6px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)' }}
+            >
+              Adicionar Créditos
+            </button>
+          )}
           <button onClick={() => signOut()} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 13, padding: '4px 8px' }} onMouseOver={e => e.currentTarget.style.color = 'var(--text-main)'} onMouseOut={e => e.currentTarget.style.color = 'var(--text-muted)'}>Sair</button>
         </div>
       </div>
@@ -217,6 +231,12 @@ export default function Chat() {
             )}
             <div style={{ maxWidth: '80%', padding: '14px 18px', borderRadius: msg.role === 'user' ? '20px 20px 4px 20px' : '4px 20px 20px 20px', background: msg.role === 'user' ? 'var(--primary)' : 'var(--bg-card)', color: 'var(--text-main)', fontSize: 15, lineHeight: 1.6, whiteSpace: 'pre-wrap', border: msg.role === 'assistant' ? '1px solid var(--border-light)' : 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
               {msg.content}
+              {msg.outOfCredits && (
+                <div style={{ marginTop: 16, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  <button onClick={() => buyCredits('basic')} style={{ padding: '8px 16px', background: 'var(--bg-input)', border: '1px solid var(--border-strong)', color: 'var(--text-main)', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>Plano Básico</button>
+                  <button onClick={() => buyCredits('pro')} style={{ padding: '8px 16px', background: 'var(--text-main)', color: 'var(--bg-dark)', border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>Plano Pro</button>
+                </div>
+              )}
             </div>
           </div>
         ))}

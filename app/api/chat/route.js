@@ -47,7 +47,7 @@ export async function POST(req) {
 
     const users = await sql`SELECT credits FROM users WHERE id = ${userId}`;
     const user = users[0];
-    if (!user || user.credits <= 0) return Response.json({ error: "Créditos insuficientes." })
+    if (!user || user.credits <= 0) return Response.json({ error: "Você usou seus créditos gratuitos. Posso continuar te ajudando agora mesmo.", outOfCredits: true })
 
     const agent = agents[agentId] || agents['ansiedade']
     const history = await sql`
