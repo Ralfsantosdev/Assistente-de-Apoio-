@@ -115,6 +115,15 @@ export default function Chat() {
     )
   }
 
+  // Aguardando verificação local do aceite dos termos
+  if (termsAccepted === null) {
+    return (
+      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui' }}>
+        <p style={{ color: '#6b7280' }}>Carregando preferências...</p>
+      </div>
+    )
+  }
+
   // Autenticado mas ainda não aceitou os termos
   if (termsAccepted === false) {
     return (
