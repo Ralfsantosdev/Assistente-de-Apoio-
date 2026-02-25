@@ -1,13 +1,34 @@
 import sql from '@/lib/db'
 import { checkCrisis } from '@/lib/crisis'
 import { agents } from '@/lib/agents'
+import { rateLimit } from '@/lib/rateLimit'
+
+const MAX_MESSAGE_LENGTH = 2000
+const MAX_USERID_LENGTH = 256
 
 export async function POST(req) {
   try {
+    // Rate limiting: 15 mensagens por minuto por IP
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
+    const rl = rateLimit(`chat:${ip}`, 15, 60_000)
+    if (!rl.ok) {
+      return Response.json(
+        { error: `Muitas requisições. Tente novamente em ${rl.retryAfter}s.` },
+        { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } }
+      )
+    }
+
     const { message, userId, agentId = 'ansiedade' } = await req.json()
 
+    // Validação de inputs
     if (!message || !userId) {
       return Response.json({ error: "Mensagem e userId são obrigatórios." }, { status: 400 })
+    }
+    if (typeof message !== 'string' || message.length > MAX_MESSAGE_LENGTH) {
+      return Response.json({ error: `Mensagem deve ter no máximo ${MAX_MESSAGE_LENGTH} caracteres.` }, { status: 400 })
+    }
+    if (typeof userId !== 'string' || userId.length > MAX_USERID_LENGTH) {
+      return Response.json({ error: "userId inválido." }, { status: 400 })
     }
 
     if (checkCrisis(message)) {
@@ -52,7 +73,6 @@ export async function POST(req) {
       { role: "user", content: message }
     ];
 
-    // Chamada direta ao OpenAI
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -67,9 +87,8 @@ export async function POST(req) {
     });
 
     if (!openaiResponse.ok) {
-      const errText = await openaiResponse.text();
-      console.error("[chat] OpenAI erro:", openaiResponse.status, errText);
-      return Response.json({ error: `Erro na IA (${openaiResponse.status})`, detail: errText }, { status: 500 });
+      console.error("[chat] OpenAI erro:", openaiResponse.status, await openaiResponse.text());
+      return Response.json({ error: "Erro ao processar mensagem. Tente novamente." }, { status: 500 });
     }
 
     const openaiData = await openaiResponse.json();
@@ -77,21 +96,13 @@ export async function POST(req) {
     const tokensUsed = openaiData.usage?.total_tokens || 0;
 
     await sql`UPDATE users SET credits = credits - 1 WHERE id = ${userId}`;
-
-    await sql`
-      INSERT INTO messages (user_id, agent_id, role, content)
-      VALUES (${userId}, ${agentId}, 'user', ${message})
-    `;
-
-    await sql`
-      INSERT INTO messages (user_id, agent_id, role, content, tokens_used)
-      VALUES (${userId}, ${agentId}, 'assistant', ${replyContent}, ${tokensUsed})
-    `;
+    await sql`INSERT INTO messages (user_id, agent_id, role, content) VALUES (${userId}, ${agentId}, 'user', ${message})`;
+    await sql`INSERT INTO messages (user_id, agent_id, role, content, tokens_used) VALUES (${userId}, ${agentId}, 'assistant', ${replyContent}, ${tokensUsed})`;
 
     return Response.json({ reply: replyContent })
 
   } catch (error) {
     console.error("[chat] Erro interno:", error.message, error.stack)
-    return Response.json({ error: "Erro interno", detail: error.message }, { status: 500 })
+    return Response.json({ error: "Erro interno. Tente novamente." }, { status: 500 })
   }
 }

@@ -1,21 +1,25 @@
 import sql from '@/lib/db'
+import { rateLimit } from '@/lib/rateLimit'
 
 export async function GET(req) {
   try {
+    // Rate limiting: 30 req/min por IP
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
+    const rl = rateLimit(`credits:${ip}`, 30, 60_000)
+    if (!rl.ok) {
+      return Response.json({ error: "Muitas requisições." }, { status: 429 })
+    }
+
     const url = new URL(req.url)
     const userId = url.searchParams.get('userId')
 
-    if (!userId) {
-      return Response.json({ error: "userId obrigatório" }, { status: 400 })
+    if (!userId || typeof userId !== 'string' || userId.length > 256) {
+      return Response.json({ error: "userId inválido" }, { status: 400 })
     }
 
-    // Tenta buscar o usuário
-    const users = await sql`
-      SELECT credits FROM users WHERE id = ${userId}
-    `
+    const users = await sql`SELECT credits FROM users WHERE id = ${userId}`
 
     if (users.length === 0) {
-      // Usuário não existe ainda — cria com 20 créditos de boas-vindas
       await sql`
         INSERT INTO users (id, credits) VALUES (${userId}, 20)
         ON CONFLICT (id) DO NOTHING
@@ -25,8 +29,7 @@ export async function GET(req) {
 
     return Response.json({ credits: users[0].credits })
   } catch (error) {
-    // Loga o erro real para aparecer nos logs da Vercel
-    console.error("[credits] Erro:", error.message, error.stack)
-    return Response.json({ error: "Erro interno", detail: error.message }, { status: 500 })
+    console.error("[credits] Erro:", error.message)
+    return Response.json({ error: "Erro interno." }, { status: 500 })
   }
 }
