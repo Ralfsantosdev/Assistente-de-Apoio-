@@ -1,5 +1,5 @@
 import { MercadoPagoConfig, Payment } from 'mercadopago';
-import sql from '../../../../lib/db';
+import sql from '@/lib/db';
 
 const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN });
 

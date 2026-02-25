@@ -1,4 +1,4 @@
-import sql from '../../../lib/db'
+import sql from '@/lib/db'
 import { checkCrisis } from '../../../lib/crisis'
 import { agents } from '../../../lib/agents'
 
