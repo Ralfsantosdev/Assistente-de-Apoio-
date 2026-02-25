@@ -1,4 +1,4 @@
-import { pages } from "./content"
+import { pages } from "@/lib/pages-data"
 
 export default function sitemap() {
   const baseUrl = "https://assistente-de-apoio.vercel.app"
