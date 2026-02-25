@@ -2,9 +2,10 @@ import sql from '@/lib/db'
 import { checkCrisis } from '@/lib/crisis'
 import { agents } from '@/lib/agents'
 import { rateLimit } from '@/lib/rateLimit'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/authOptions'
 
 const MAX_MESSAGE_LENGTH = 2000
-const MAX_USERID_LENGTH = 256
 
 export async function POST(req) {
   try {
@@ -18,17 +19,17 @@ export async function POST(req) {
       )
     }
 
-    const { message, userId, agentId = 'ansiedade' } = await req.json()
+    // Autenticação: extrair userId da sessão do servidor (não do cliente)
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return Response.json({ error: "Não autenticado." }, { status: 401 })
+    }
+    const userId = session.user.id
 
-    // Validação de inputs
-    if (!message || !userId) {
-      return Response.json({ error: "Mensagem e userId são obrigatórios." }, { status: 400 })
-    }
-    if (typeof message !== 'string' || message.length > MAX_MESSAGE_LENGTH) {
-      return Response.json({ error: `Mensagem deve ter no máximo ${MAX_MESSAGE_LENGTH} caracteres.` }, { status: 400 })
-    }
-    if (typeof userId !== 'string' || userId.length > MAX_USERID_LENGTH) {
-      return Response.json({ error: "userId inválido." }, { status: 400 })
+    const { message, agentId = 'ansiedade' } = await req.json()
+
+    if (!message || typeof message !== 'string' || message.length > MAX_MESSAGE_LENGTH) {
+      return Response.json({ error: `Mensagem inválida ou acima do limite de ${MAX_MESSAGE_LENGTH} caracteres.` }, { status: 400 })
     }
 
     if (checkCrisis(message)) {
@@ -42,48 +43,29 @@ export async function POST(req) {
     }
 
     // Auto-cria o usuário se for a primeira vez
-    await sql`
-      INSERT INTO users (id, credits) VALUES (${userId}, 20)
-      ON CONFLICT (id) DO NOTHING
-    `;
+    await sql`INSERT INTO users (id, credits) VALUES (${userId}, 20) ON CONFLICT (id) DO NOTHING`;
 
     const users = await sql`SELECT credits FROM users WHERE id = ${userId}`;
     const user = users[0];
-
-    if (!user || user.credits <= 0) {
-      return Response.json({ error: "Créditos insuficientes." })
-    }
+    if (!user || user.credits <= 0) return Response.json({ error: "Créditos insuficientes." })
 
     const agent = agents[agentId] || agents['ansiedade']
-
     const history = await sql`
       SELECT role, content FROM messages
       WHERE user_id = ${userId} AND agent_id = ${agentId}
       ORDER BY created_at DESC LIMIT 20
     `;
 
-    const formattedHistory = (history || []).reverse().map(msg => ({
-      role: msg.role,
-      content: msg.content
-    }))
-
     const messagesPayload = [
       { role: "system", content: agent.systemPrompt },
-      ...formattedHistory,
+      ...(history || []).reverse().map(msg => ({ role: msg.role, content: msg.content })),
       { role: "user", content: message }
     ];
 
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4.1-nano",
-        messages: messagesPayload,
-        temperature: 0.7
-      })
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` },
+      body: JSON.stringify({ model: "gpt-4.1-nano", messages: messagesPayload, temperature: 0.7 })
     });
 
     if (!openaiResponse.ok) {
@@ -100,9 +82,8 @@ export async function POST(req) {
     await sql`INSERT INTO messages (user_id, agent_id, role, content, tokens_used) VALUES (${userId}, ${agentId}, 'assistant', ${replyContent}, ${tokensUsed})`;
 
     return Response.json({ reply: replyContent })
-
   } catch (error) {
-    console.error("[chat] Erro interno:", error.message, error.stack)
+    console.error("[chat] Erro interno:", error.message)
     return Response.json({ error: "Erro interno. Tente novamente." }, { status: 500 })
   }
 }

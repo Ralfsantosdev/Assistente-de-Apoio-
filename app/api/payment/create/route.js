@@ -1,17 +1,19 @@
 import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/authOptions';
 
-// Configura o Mercado Pago com o token de acesso
 const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN });
 
 export async function POST(req) {
   try {
-    const { userId, planOption } = await req.json();
-
-    if (!userId) {
-      return Response.json({ error: "O ID do usuário é obrigatório." }, { status: 400 });
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return Response.json({ error: "Não autenticado." }, { status: 401 });
     }
+    const userId = session.user.id;
 
-    // Configuração dos planos (Exemplo de preenchimento de créditos)
+    const { planOption } = await req.json();
+
     const plans = {
       basic: { title: "Pacote Básico de Créditos", price: 19.90, credits: 50 },
       pro: { title: "Pacote Profissional de Créditos", price: 39.90, credits: 150 },
