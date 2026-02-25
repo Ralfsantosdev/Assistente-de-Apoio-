@@ -21,7 +21,14 @@ function verifyMPSignature(req, rawBody) {
   const v1 = parts.v1;
   if (!ts || !v1) return false;
 
-  const manifest = `id:${JSON.parse(rawBody)?.data?.id};request-id:${requestId};ts:${ts};`;
+  let dataId = '';
+  try {
+    dataId = JSON.parse(rawBody)?.data?.id || '';
+  } catch (e) {
+    return false;
+  }
+  
+  const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
   const expected = crypto.createHmac('sha256', secret).update(manifest).digest('hex');
   return expected === v1;
 }
