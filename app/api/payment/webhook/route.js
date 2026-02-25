@@ -5,41 +5,59 @@ const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCE
 
 export async function POST(req) {
   try {
-    // Mercado Pago pode enviar dados via URL Params ou JSON body
-    const url = new URL(req.url);
-    const id = url.searchParams.get('data.id') || url.searchParams.get('id');
-    const type = url.searchParams.get('type') || url.searchParams.get('topic');
-    
-    // Mercado Pago envia o 'payment' como tipo no webhook principal
-    if (type === 'payment' && id) {
-      const payment = new Payment(client);
-      const paymentInfo = await payment.get({ id });
+    // Ler o body JSON enviado pelo Mercado Pago
+    const body = await req.json();
+    const { type, action, data, live_mode } = body;
 
-      if (paymentInfo.status === 'approved') {
-        const userId = paymentInfo.metadata.user_id;
-        const creditsToAdd = Number(paymentInfo.metadata.credits_to_add);
+    console.log('[webhook] Recebido:', JSON.stringify(body));
 
-        // Atualizar o banco de dados via Neon/Postgres
-        await sql`
-          UPDATE users 
-          SET credits = credits + ${creditsToAdd} 
-          WHERE id = ${userId}
-        `;
-
-        // Registrar também a transação para auditoria (opcional mas recomendado)
-        await sql`
-          INSERT INTO credit_transactions (user_id, amount, type)
-          VALUES (${userId}, ${creditsToAdd}, 'purchase')
-        `;
-
-        console.log(`Pagamento aprovado. Creditado ${creditsToAdd} para o user ${userId}.`);
-      }
+    // Responder imediatamente para eventos que não são de pagamento
+    if (type !== 'payment' && action !== 'payment.updated' && action !== 'payment.created') {
+      return Response.json({ received: true }, { status: 200 });
     }
 
-    // Mercado Pago exige que você responda com 200/201 rapidamente
+    const paymentId = data?.id;
+
+    if (!paymentId) {
+      return Response.json({ received: true }, { status: 200 });
+    }
+
+    // Ignorar IDs de teste (live_mode: false ou ID de teste "123456")
+    if (!live_mode || String(paymentId) === '123456') {
+      console.log('[webhook] Evento de teste ignorado:', paymentId);
+      return Response.json({ received: true, test: true }, { status: 200 });
+    }
+
+    const payment = new Payment(client);
+    const paymentInfo = await payment.get({ id: paymentId });
+
+    if (paymentInfo.status === 'approved') {
+      const userId = paymentInfo.metadata?.user_id;
+      const creditsToAdd = Number(paymentInfo.metadata?.credits_to_add || 0);
+
+      if (!userId || !creditsToAdd) {
+        console.error('[webhook] Metadata ausente:', paymentInfo.metadata);
+        return Response.json({ received: true }, { status: 200 });
+      }
+
+      await sql`
+        UPDATE users 
+        SET credits = credits + ${creditsToAdd} 
+        WHERE id = ${userId}
+      `;
+
+      await sql`
+        INSERT INTO credit_transactions (user_id, amount, type)
+        VALUES (${userId}, ${creditsToAdd}, 'purchase')
+      `;
+
+      console.log(`[webhook] Aprovado. +${creditsToAdd} créditos para ${userId}`);
+    }
+
     return Response.json({ received: true }, { status: 200 });
   } catch (error) {
-    console.error("Erro no Webhook do Mercado Pago:", error);
-    return Response.json({ error: "Erro interno" }, { status: 500 });
+    console.error('[webhook] Erro:', error.message);
+    // Retornar 200 mesmo em erro para o MP não reenviar infinitamente
+    return Response.json({ received: true, error: error.message }, { status: 200 });
   }
 }
