@@ -7,9 +7,16 @@ export default function Chat() {
   const [loading, setLoading] = useState(false)
   const [loadingPayment, setLoadingPayment] = useState(false)
   const [credits, setCredits] = useState(null)
+  const [termsAccepted, setTermsAccepted] = useState(null) // null = carregando
   const messagesEndRef = useRef(null)
 
   const demoUserId = "demo-user"
+
+  // Verificar se já aceitou os termos
+  useEffect(() => {
+    const accepted = localStorage.getItem('terms_accepted') === 'true'
+    setTermsAccepted(accepted)
+  }, [])
 
   useEffect(() => {
     async function fetchCredits() {
@@ -82,6 +89,62 @@ export default function Chat() {
       setLoadingPayment(false)
     }
   }
+
+  function acceptTerms() {
+    localStorage.setItem('terms_accepted', 'true')
+    setTermsAccepted(true)
+  }
+
+  // Aguardando verificação do localStorage
+  if (termsAccepted === null) return null
+
+  // Tela de Termos de Responsabilidade
+  if (!termsAccepted) return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', maxWidth: 720, margin: '0 auto', fontFamily: 'system-ui, sans-serif' }}>
+      <div style={{ padding: '20px 20px 12px', borderBottom: '1px solid #e5e7eb' }}>
+        <strong style={{ fontSize: 17 }}>🧠 Assistente Emocional</strong>
+      </div>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 20px' }}>
+        <h2 style={{ fontSize: 18, marginBottom: 6 }}>Termos de Uso e Responsabilidade</h2>
+        <p style={{ color: '#6b7280', fontSize: 13, marginBottom: 20 }}>Leia com atenção antes de continuar.</p>
+
+        {[
+          {
+            emoji: '🎓', title: 'Fins Educacionais',
+            text: 'Este assistente oferece informações educativas sobre saúde mental. Não realiza diagnóstico clínico, não prescreve medicamentos e não substitui atendimento psicológico ou psiquiátrico.'
+          },
+          {
+            emoji: '👩‍⚕️', title: 'Procure Ajuda Profissional',
+            text: 'Se você apresenta sintomas persistentes, busque um profissional de saúde mental licenciado. Este assistente não pode avaliar, tratar ou acompanhar seu estado clínico.'
+          },
+          {
+            emoji: '🆘', title: 'Crise ou Emergência',
+            text: 'Se você estiver em crise, com pensamentos de se machucar ou em risco imediato, ligue agora para o CVV: 188 (24h, gratuito) ou vá ao pronto-socorro mais próximo.'
+          },
+          {
+            emoji: '🔒', title: 'Privacidade',
+            text: 'Suas mensagens são processadas para gerar respostas. Não compartilhe informações sensíveis como CPF, dados bancários ou de terceiros.'
+          },
+          {
+            emoji: '⚖️', title: 'Limitação de Responsabilidade',
+            text: 'Os operadores deste serviço não se responsabilizam por decisões tomadas com base nas respostas do assistente. Use sempre com senso crítico e em complemento a orientação profissional.'
+          }
+        ].map((item, i) => (
+          <div key={i} style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 10, padding: '14px 16px', marginBottom: 12 }}>
+            <strong style={{ fontSize: 14 }}>{item.emoji} {item.title}</strong>
+            <p style={{ margin: '6px 0 0', color: '#374151', fontSize: 13, lineHeight: 1.6 }}>{item.text}</p>
+          </div>
+        ))}
+      </div>
+      <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', background: '#fff' }}>
+        <button
+          onClick={acceptTerms}
+          style={{ width: '100%', padding: '14px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>
+          Li e aceito os termos — Iniciar conversa
+        </button>
+      </div>
+    </div>
+  )
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', maxWidth: 720, margin: '0 auto', fontFamily: 'system-ui, sans-serif' }}>
