@@ -3,12 +3,14 @@ import Link from "next/link"
 export const metadata = {
   title: "Crise de Ansiedade: sintomas, causas e o que fazer",
   description:
-    "Entenda os sintomas de uma crise de ansiedade e como agir em momentos de pico emocional. Orientações práticas para lidar com o pânico."
+    "Entenda os sintomas de uma crise de ansiedade e como agir em momentos de pico emocional. Orientações práticas para lidar com o pânico.",
+  keywords: ["crise de ansiedade", "crise ansiedade sintomas", "ataque ansiedade", "crise de pânico"],
+  openGraph: { title: "Crise de Ansiedade", description: "Sintomas e o que fazer durante uma crise de ansiedade." }
 }
 
 export default function Page() {
   return (
-    <main style={{ padding: '40px 20px', maxWidth: '800px', margin: '0 auto', fontFamily: 'var(--font-inter)', lineHeight: '1.6' }}>
+    <main style={{ padding: '40px 20px', maxWidth: '800px', margin: '0 auto', fontFamily: 'var(--font-inter)', lineHeight: '1.8' }}>
       <h1 style={{ fontFamily: 'var(--font-outfit)', fontSize: '2.5rem', marginBottom: '24px' }}>Crise de Ansiedade: O Que Acontece no Corpo</h1>
 
       <p>
@@ -19,7 +21,7 @@ export default function Page() {
       <h2 style={{ marginTop: '32px' }}>Sintomas de crise de ansiedade</h2>
       <ul style={{ paddingLeft: '20px', marginBottom: '24px' }}>
         <li>Batimentos cardíacos muito acelerados</li>
-        <li>Sensação de morte iminente ou perda de controle</li>
+        <li><Link href="/sensacao-de-morte-iminente" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Sensação de morte iminente</Link> ou perda de controle</li>
         <li>Falta de ar ou sensação de sufocamento</li>
         <li>Tontura, náusea ou instabilidade</li>
         <li>Desrealização (sentir que o ambiente não é real)</li>
@@ -42,8 +44,17 @@ export default function Page() {
         </Link>
       </div>
 
-      <p style={{ marginTop: 32, fontSize: '14px', color: 'var(--text-muted)' }}>
-        Nota: Se os sintomas persistirem ou forem severos, busque ajuda médica imediatamente ou ligue 188.
+      <nav style={{ marginTop: '40px', padding: '24px', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)' }}>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px' }}>Páginas relacionadas</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <Link href="/ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '14px' }}>← Ansiedade: guia completo</Link>
+          <Link href="/quanto-tempo-dura-uma-crise-de-ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '14px' }}>→ Quanto tempo dura uma crise?</Link>
+          <Link href="/o-que-fazer-em-uma-crise-de-ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '14px' }}>→ O que fazer em uma crise</Link>
+        </div>
+      </nav>
+
+      <p style={{ marginTop: 32, fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center' }}>
+        ⚠️ Se os sintomas persistirem ou forem severos, busque ajuda médica imediatamente ou ligue 188.
       </p>
     </main>
   )

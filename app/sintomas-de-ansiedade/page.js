@@ -8,7 +8,8 @@ export const metadata = {
     "sintomas de ansiedade",
     "ansiedade sintomas",
     "sintomas da ansiedade",
-    "sintomas ansiedade"
+    "sintomas ansiedade",
+    "sinais de ansiedade"
   ],
   openGraph: {
     title: "Sintomas de Ansiedade",
@@ -19,7 +20,7 @@ export const metadata = {
 
 export default function Page() {
   return (
-    <main style={{ padding: '40px 20px', maxWidth: '800px', margin: '0 auto', fontFamily: 'var(--font-inter)', lineHeight: '1.6' }}>
+    <main style={{ padding: '40px 20px', maxWidth: '800px', margin: '0 auto', fontFamily: 'var(--font-inter)', lineHeight: '1.8' }}>
       <h1 style={{ fontFamily: 'var(--font-outfit)', fontSize: '2.5rem', marginBottom: '24px' }}>Sintomas de Ansiedade: Como o Corpo e a Mente Reagem</h1>
 
       <p>
@@ -30,10 +31,10 @@ export default function Page() {
 
       <h2 style={{ marginTop: '32px' }}>Sintomas físicos mais comuns</h2>
       <ul style={{ paddingLeft: '20px', marginBottom: '24px' }}>
-        <li>Taquicardia (batimentos acelerados)</li>
-        <li>Falta de ar ou respiração ofegante</li>
+        <li><Link href="/taquicardia-e-ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Taquicardia</Link> (batimentos acelerados)</li>
+        <li><Link href="/falta-de-ar-e-ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Falta de ar</Link> ou respiração ofegante</li>
         <li>Tremores e espasmos musculares</li>
-        <li>Formigamento nas mãos ou rosto</li>
+        <li><Link href="/formigamento-e-ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Formigamento</Link> nas mãos ou rosto</li>
         <li>Tensão muscular e dores no corpo</li>
         <li>Sudorese excessiva</li>
       </ul>
@@ -74,6 +75,15 @@ export default function Page() {
           <p>Podem durar horas ou dias, dependendo do nível de estresse e da persistência dos gatilhos emocionais.</p>
         </div>
       </section>
+
+      <nav style={{ marginTop: '40px', padding: '24px', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)' }}>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px' }}>Páginas relacionadas</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <Link href="/ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '14px' }}>← Ansiedade: guia completo</Link>
+          <Link href="/sintomas-de-ansiedade-no-corpo" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '14px' }}>→ Sintomas de ansiedade no corpo</Link>
+          <Link href="/ansiedade-sintomas-fisicos" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '14px' }}>→ Ansiedade: sintomas físicos detalhados</Link>
+        </div>
+      </nav>
     </main>
   )
 }

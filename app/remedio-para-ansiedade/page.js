@@ -3,12 +3,14 @@ import Link from "next/link"
 export const metadata = {
   title: "Remédio para Ansiedade: quais existem e quando são indicados",
   description:
-    "Saiba quais classes de medicamentos podem ser usadas no tratamento da ansiedade e a importância crucial da prescrição médica."
+    "Saiba quais classes de medicamentos podem ser usadas no tratamento da ansiedade e a importância crucial da prescrição médica.",
+  keywords: ["remédio para ansiedade", "medicamento ansiedade", "remédio ansiedade", "tratamento medicamentoso ansiedade"],
+  openGraph: { title: "Remédio para Ansiedade", description: "Medicamentos para ansiedade: classes e indicações." }
 }
 
 export default function Page() {
   return (
-    <main style={{ padding: '40px 20px', maxWidth: '800px', margin: '0 auto', fontFamily: 'var(--font-inter)', lineHeight: '1.6' }}>
+    <main style={{ padding: '40px 20px', maxWidth: '800px', margin: '0 auto', fontFamily: 'var(--font-inter)', lineHeight: '1.8' }}>
       <h1 style={{ fontFamily: 'var(--font-outfit)', fontSize: '2.5rem', marginBottom: '24px' }}>Remédio para Ansiedade: Informações Importantes</h1>
 
       <div style={{ background: 'rgba(239, 68, 68, 0.1)', borderLeft: '4px solid #ef4444', padding: '16px', marginBottom: '32px' }}>
@@ -24,8 +26,8 @@ export default function Page() {
 
       <h2 style={{ marginTop: '32px' }}>Principais classes utilizadas</h2>
       <ul style={{ paddingLeft: '20px', marginBottom: '24px' }}>
-        <li><strong>ISRS (Inibidores Seletivos de Recaptação de Serotonina):</strong> Geralmente a primeira linha de tratamento para TAG e pânico.</li>
-        <li><strong>Benzodiazepínicos:</strong> Usados para alívio imediato (curto prazo), possuem risco de dependência se mal utilizados.</li>
+        <li><strong><Link href="/antidepressivo-para-ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none' }}>ISRS (Inibidores Seletivos de Recaptação de Serotonina)</Link>:</strong> Geralmente a primeira linha de tratamento para TAG e pânico.</li>
+        <li><strong><Link href="/ansiolitico-o-que-e" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Benzodiazepínicos</Link>:</strong> Usados para alívio imediato (curto prazo), possuem risco de dependência se mal utilizados.</li>
         <li><strong>Antidepressivos Tricíclicos:</strong> Opções alternativas para casos específicos.</li>
       </ul>
 
@@ -43,6 +45,15 @@ export default function Page() {
           Falar com o assistente
         </Link>
       </div>
+
+      <nav style={{ marginTop: '40px', padding: '24px', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)' }}>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px' }}>Páginas relacionadas</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <Link href="/ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '14px' }}>← Ansiedade: guia completo</Link>
+          <Link href="/remedios-para-ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '14px' }}>→ Remédios para ansiedade: todas as classes</Link>
+          <Link href="/tratamento-para-ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '14px' }}>→ Tratamento para ansiedade: guia completo</Link>
+        </div>
+      </nav>
     </main>
   )
 }

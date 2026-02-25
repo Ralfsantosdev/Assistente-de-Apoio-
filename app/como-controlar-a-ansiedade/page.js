@@ -3,12 +3,14 @@ import Link from "next/link"
 export const metadata = {
   title: "Como Controlar a Ansiedade: técnicas e estratégias eficazes",
   description:
-    "Aprenda métodos práticos para controlar a ansiedade no dia a dia, desde mudanças de hábito até técnicas de respiração."
+    "Aprenda métodos práticos para controlar a ansiedade no dia a dia, desde mudanças de hábito até técnicas de respiração.",
+  keywords: ["como controlar ansiedade", "controlar ansiedade", "técnicas ansiedade", "como diminuir ansiedade"],
+  openGraph: { title: "Como Controlar a Ansiedade", description: "Técnicas práticas para controlar a ansiedade." }
 }
 
 export default function Page() {
   return (
-    <main style={{ padding: '40px 20px', maxWidth: '800px', margin: '0 auto', fontFamily: 'var(--font-inter)', lineHeight: '1.6' }}>
+    <main style={{ padding: '40px 20px', maxWidth: '800px', margin: '0 auto', fontFamily: 'var(--font-inter)', lineHeight: '1.8' }}>
       <h1 style={{ fontFamily: 'var(--font-outfit)', fontSize: '2.5rem', marginBottom: '24px' }}>Como Controlar a Ansiedade de Forma Prática</h1>
 
       <p>
@@ -29,12 +31,19 @@ export default function Page() {
 
       <h2 style={{ marginTop: '32px' }}>3. Higiene do Sono</h2>
       <p>
-        Evite telas antes de dormir e mantenha horários regulares. Um corpo descansado tem mais recursos para lidar com a ansiedade.
+        Evite telas antes de dormir e mantenha horários regulares. Um corpo descansado tem mais recursos para lidar com a ansiedade. 
+        Saiba mais em <Link href="/ansiedade-antes-de-dormir" style={{ color: 'var(--primary)', textDecoration: 'none' }}>ansiedade antes de dormir</Link>.
       </p>
 
       <h2 style={{ marginTop: '32px' }}>4. Atenção Plena (Mindfulness)</h2>
       <p>
         Treinar a mente para focar no "aqui e agora" reduz a ruminação sobre o futuro.
+      </p>
+
+      <h2 style={{ marginTop: '32px' }}>5. Opções Complementares</h2>
+      <p>
+        <Link href="/cha-para-ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Chás naturais</Link> como camomila e passiflora podem ser aliados no relaxamento. 
+        Para casos mais persistentes, a <Link href="/terapia-para-ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none' }}>terapia</Link> é fundamental.
       </p>
 
       <div style={{marginTop:40, padding:32, background:"var(--bg-card)", border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)', textAlign: 'center'}}>
@@ -46,6 +55,15 @@ export default function Page() {
           Começar Prática
         </Link>
       </div>
+
+      <nav style={{ marginTop: '40px', padding: '24px', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)' }}>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px' }}>Páginas relacionadas</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <Link href="/ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '14px' }}>← Ansiedade: guia completo</Link>
+          <Link href="/tratamento-para-ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '14px' }}>→ Tratamento para ansiedade</Link>
+          <Link href="/terapia-para-ansiedade" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '14px' }}>→ Terapia para ansiedade</Link>
+        </div>
+      </nav>
     </main>
   )
 }
