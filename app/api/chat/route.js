@@ -26,9 +26,7 @@ export async function POST(req) {
       ON CONFLICT (id) DO NOTHING
     `;
 
-    const users = await sql`
-      SELECT credits FROM users WHERE id = ${userId}
-    `;
+    const users = await sql`SELECT credits FROM users WHERE id = ${userId}`;
     const user = users[0];
 
     if (!user || user.credits <= 0) {
@@ -48,36 +46,35 @@ export async function POST(req) {
       content: msg.content
     }))
 
-    const messages = [
+    const messagesPayload = [
       { role: "system", content: agent.systemPrompt },
       ...formattedHistory,
       { role: "user", content: message }
     ];
 
-    // Chamada ao Orquestrador
-    const orchestratorResponse = await fetch(`${process.env.ORCHESTRATOR_URL}/v1/process`, {
+    // Chamada direta ao OpenAI
+    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.ORCHESTRATOR_API_KEY}`
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        messages: messages,
         model: "gpt-4o-mini",
-        temperature: 0.7,
-        domain: "assistente-emocional"
+        messages: messagesPayload,
+        temperature: 0.7
       })
     });
 
-    if (!orchestratorResponse.ok) {
-      const errText = await orchestratorResponse.text();
-      console.error("[chat] Orquestrador retornou erro:", orchestratorResponse.status, errText);
-      return Response.json({ error: `Erro no Orquestrador (${orchestratorResponse.status}): ${errText}` }, { status: 500 });
+    if (!openaiResponse.ok) {
+      const errText = await openaiResponse.text();
+      console.error("[chat] OpenAI erro:", openaiResponse.status, errText);
+      return Response.json({ error: `Erro na IA (${openaiResponse.status})`, detail: errText }, { status: 500 });
     }
 
-    const orchestratorData = await orchestratorResponse.json();
-    const replyContent = orchestratorData.reply || orchestratorData.choices?.[0]?.message?.content || "Desculpe, não consegui processar sua mensagem.";
-    const tokensUsed = orchestratorData.usage?.total_tokens || 0;
+    const openaiData = await openaiResponse.json();
+    const replyContent = openaiData.choices?.[0]?.message?.content || "Não consegui processar sua mensagem.";
+    const tokensUsed = openaiData.usage?.total_tokens || 0;
 
     await sql`UPDATE users SET credits = credits - 1 WHERE id = ${userId}`;
 
