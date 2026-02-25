@@ -6,8 +6,9 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
 export const metadata = {
-  title: "Assistente Emocional Pro",
-  description: "Apoio emocional educativo com IA. Não substitui atendimento médico ou psicológico.",
+  metadataBase: new URL("https://assistente-de-apoio.vercel.app"),
+  title: 'Assistente de Apoio Emocional',
+  description: 'Seu parceiro no equilíbrio emocional e controle da ansiedade.',
   themeColor: "#09090b",
 };
 
