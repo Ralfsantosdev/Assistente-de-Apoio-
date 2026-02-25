@@ -1,0 +1,36 @@
+# Assistente de Apoio Emocional - LLM Summary
+
+## Mission
+Assistente de Apoio Emocional is a specialized educational AI platform focused on anxiety management, emotional balance, and psychoeducational guidance. It provides reliable information on anxiety symptoms, crises, and treatments based on evidence-based practices (TCC/ACT).
+
+## Core Structure
+The site operates on a programmatic SEO machine with 38+ pages clustered around:
+- **Pillar Content**: /ansiedade (Central hub)
+- **Cluster 1: Symptoms**: Physical and emotional manifestations.
+- **Cluster 2: Crises**: Management and immediate support.
+- **Cluster 3: Disorders**: Generalized Anxiety (TAG), Panic, Social Anxiety.
+- **Cluster 4: Treatment**: Therapy, medication protocols, natural remedies.
+- **Cluster 5: Diagnosis**: Clinical criteria (DSM-5/CID-11).
+- **Cluster 6: Emotional Health**: Sleep issues, morning anxiety, fatigue.
+
+## Technical Implementation
+- **Architecture**: Next.js 14 App Router.
+- **Data Source**: Programmatic JSON-driven routes via `app/content.js`.
+- **SEO**: Dynamic JSON-LD (MedicalWebPage, FAQPage) for all routes.
+- **Sitemap**: /sitemap.js (Dynamically generated).
+
+## AI Capabilities
+The platform features an integrated AI Assistant that:
+1. Guides users through breathing exercises (4-4-6 technique).
+2. Performs thought organization following Cognitive-Behavioral Therapy (TCC) principles.
+3. Provides psychoanalytical acolhimento and orientation.
+4. Identifies patterns of anxiety symptoms through interactive dialogue.
+
+## Disclaimers
+- Educational content only.
+- Does not replace professional medical or psychological evaluation.
+- Emergency contacts included: CVV (188).
+
+## Machine-Readable Resources
+- Sitemap: https://assistente-de-apoio.vercel.app/sitemap.xml
+- Content Data: app/content.js (metadata and structured sections)
