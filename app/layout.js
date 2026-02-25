@@ -1,16 +1,23 @@
 import { Providers } from './providers';
+import './globals.css';
+import { Inter, Outfit } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
 export const metadata = {
-  title: "Assistente Educacional de Apoio Emocional",
-  description: "Apoio emocional educativo com IA. Não substitui atendimento médico ou psicológico."
+  title: "Assistente Emocional Pro",
+  description: "Apoio emocional educativo com IA. Não substitui atendimento médico ou psicológico.",
+  themeColor: "#09090b",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pt-BR">
-      <body style={{ margin: 0, fontFamily: 'system-ui, sans-serif', background: '#f9fafb' }}>
+    <html lang="pt-BR" className={`${inter.variable} ${outfit.variable}`}>
+      <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>
     </html>
   )
 }
+
