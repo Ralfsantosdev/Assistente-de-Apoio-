@@ -221,7 +221,11 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer style={{ padding: '40px 24px', textAlign: 'center', borderTop: '1px solid var(--border-light)', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+      <footer style={{ padding: '60px 24px', textAlign: 'center', borderTop: '1px solid var(--border-light)', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+        <div style={{ marginBottom: '24px', display: 'flex', gap: '24px', justifyContent: 'center' }}>
+          <Link href="/chat" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Conversar</Link>
+          <Link href="/explorar" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Explorar Conteúdo</Link>
+        </div>
         © {new Date().getFullYear()} Assistente de Apoio Emocional.  
         Todos os direitos reservados.
       </footer>

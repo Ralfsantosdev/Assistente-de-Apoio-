@@ -194,9 +194,14 @@ export default function Page({ params }) {
       </nav>
 
       {/* Footer Disclaimer */}
-      <p style={{ marginTop: '60px', fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center', opacity: 0.7 }}>
-        ⚠️ Este conteúdo é educacional e não substitui atendimento médico ou psicológico. Em emergência no Brasil, ligue 188 (CVV).
-      </p>
+      <div style={{ marginTop: '60px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+        <Link href="/explorar" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 500, fontSize: '14px' }}>
+          ← Ver todos os tópicos e guias
+        </Link>
+        <p style={{ fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center', opacity: 0.7 }}>
+          ⚠️ Este conteúdo é educacional e não substitui atendimento médico ou psicológico. Em emergência no Brasil, ligue 188 (CVV).
+        </p>
+      </div>
     </main>
   )
 }
