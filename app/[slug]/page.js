@@ -114,7 +114,7 @@ export default function Page({ params }) {
           <p style={{ marginBottom: '24px', color: 'var(--text-muted)' }}>
             Nossa IA especializada pode guiar você em exercícios de respiração e organização mental imediatamente.
           </p>
-          <Link href="/" style={ctaButtonStyle}>
+          <Link href="/chat" style={ctaButtonStyle}>
             Iniciar Conversa Gratuita
           </Link>
         </div>
@@ -140,7 +140,7 @@ export default function Page({ params }) {
             O Que Pode Mudar
           </h2>
           <p style={{ color: '#eee', marginBottom: '24px' }}>{page.solution}</p>
-          <Link href="/" style={{ ...ctaButtonStyle, padding: '12px 24px', fontSize: '1rem' }}>
+          <Link href="/chat" style={{ ...ctaButtonStyle, padding: '12px 24px', fontSize: '1rem' }}>
             Testar Agora Gratuitamente
           </Link>
         </section>
