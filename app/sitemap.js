@@ -5,6 +5,8 @@ export default function sitemap() {
 
   const staticPages = [
     { url: baseUrl, lastModified: new Date() },
+    { url: `${baseUrl}/chat`, lastModified: new Date(), changeFrequency: "daily", priority: 1.0 },
+    { url: `${baseUrl}/explorar`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
   ]
 
   const dynamicPages = pages.map((page) => ({
